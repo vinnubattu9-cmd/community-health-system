@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: community-health-system
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://bhanushankarhrb_db_user:4CUX8CnBD6X2eDOI@cluster0.esjusgp.mongodb.net/community_health_system?retryWrites=true&w=majority&appName=Cluster0
+      - key: JWT_SECRET
+        value: health_monitoring_system_secret_key_2026
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
