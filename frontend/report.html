@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Report Card - CommHealth</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  <!-- html2pdf Library CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="nav-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>CommHealth</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#objectives">Objective</a></li>
+        <li><a href="survey.html">Take Survey</a></li>
+        <li><a href="surveys.html">Admin Dashboard</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" aria-label="Toggle dark/light mode">
+          <i class="fa-solid fa-moon"></i>
+          <i class="fa-solid fa-sun"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Report Body Container -->
+  <main class="container report-container">
+    
+    <!-- Outer Report Card to Print/Download -->
+    <div id="health-report-card" class="report-card">
+      
+      <!-- Report Header -->
+      <div class="report-header">
+        <div>
+          <h2>Physiological Health Assessment</h2>
+          <p id="report-date" style="opacity: 0.85; font-size: 0.9rem;">Date: --</p>
+        </div>
+        <span id="report-status" class="report-badge">--</span>
+      </div>
+
+      <!-- Report Details -->
+      <div class="report-body">
+        
+        <!-- Personal Information Section -->
+        <div>
+          <h3 class="vitals-summary-title" style="color: var(--primary); border-bottom: 1.5px solid var(--border-color); padding-bottom: 8px;">
+            <i class="fa-solid fa-address-card"></i> Subject Information
+          </h3>
+          <div class="info-grid">
+            <div class="info-block">
+              <span class="info-label">Name</span>
+              <span id="report-name" class="info-value">--</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Age / Gender</span>
+              <span id="report-age-gender" class="info-value">--</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Occupation</span>
+              <span id="report-occupation" class="info-value">--</span>
+            </div>
+            <div class="info-block">
+              <span class="info-label">Report ID</span>
+              <span id="report-id" class="info-value" style="font-family: monospace; font-size: 0.9rem;">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Physiology Vitals Section -->
+        <div>
+          <h3 class="vitals-summary-title"><i class="fa-solid fa-chart-simple"></i> Vital Health Parameters</h3>
+          <div class="vitals-grid-report">
+            
+            <!-- Vital Card: BMI -->
+            <div class="vital-card">
+              <div class="vital-icon blue">
+                <i class="fa-solid fa-weight-scale"></i>
+              </div>
+              <div class="vital-details">
+                <span class="vital-label">BMI (Height/Weight)</span>
+                <span id="report-bmi" class="vital-value">--</span>
+                <span id="report-bmi-cat" class="vital-status">--</span>
+              </div>
+            </div>
+
+            <!-- Vital Card: Temperature -->
+            <div class="vital-card">
+              <div class="vital-icon warning">
+                <i class="fa-solid fa-thermometer"></i>
+              </div>
+              <div class="vital-details">
+                <span class="vital-label">Body Temperature</span>
+                <span id="report-temp" class="vital-value">--</span>
+                <span id="report-temp-status" class="vital-status">--</span>
+              </div>
+            </div>
+
+            <!-- Vital Card: Pulse Rate -->
+            <div class="vital-card">
+              <div class="vital-icon red">
+                <i class="fa-solid fa-heart-pulse"></i>
+              </div>
+              <div class="vital-details">
+                <span class="vital-label">Pulse Rate</span>
+                <span id="report-pulse" class="vital-value">--</span>
+                <span id="report-pulse-status" class="vital-status">--</span>
+              </div>
+            </div>
+
+            <!-- Vital Card: Oxygen Level -->
+            <div class="vital-card">
+              <div class="vital-icon blue">
+                <i class="fa-solid fa-wind"></i>
+              </div>
+              <div class="vital-details">
+                <span class="vital-label">Oxygen Level (SpO2)</span>
+                <span id="report-oxygen" class="vital-value">--</span>
+                <span id="report-oxygen-status" class="vital-status">--</span>
+              </div>
+            </div>
+
+            <!-- Vital Card: BP -->
+            <div class="vital-card">
+              <div class="vital-icon red">
+                <i class="fa-solid fa-gauge"></i>
+              </div>
+              <div class="vital-details">
+                <span class="vital-label">Blood Pressure</span>
+                <span id="report-bp" class="vital-value">--</span>
+                <span id="report-bp-status" class="vital-status">--</span>
+              </div>
+            </div>
+
+            <!-- Vital Card: Blood Sugar -->
+            <div class="vital-card">
+              <div class="vital-icon green">
+                <i class="fa-solid fa-droplet"></i>
+              </div>
+              <div class="vital-details">
+                <span class="vital-label">Blood Sugar</span>
+                <span id="report-sugar" class="vital-value">--</span>
+                <span id="report-sugar-status" class="vital-status">--</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Recommendations Panel -->
+        <div id="recommendations-container" class="recommendations-box">
+          <h3 id="recommendations-header"><i class="fa-solid fa-user-doctor"></i> Medical & Lifestyle Guidelines</h3>
+          <ul id="report-recommendations-list">
+            <!-- Populated dynamically -->
+          </ul>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Actions Bar -->
+    <div class="report-actions">
+      <button id="btn-share-report" class="btn btn-secondary">
+        <i class="fa-solid fa-share-nodes"></i> Share Report
+      </button>
+      <button id="btn-print-report" class="btn btn-outline">
+        <i class="fa-solid fa-print"></i> Print Report
+      </button>
+      <button id="btn-download-pdf" class="btn btn-primary">
+        <i class="fa-solid fa-file-pdf"></i> Download PDF Report
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>Community Health Monitoring & Awareness System</span>
+      </div>
+      <p class="text-muted" style="font-size: 0.85rem;">
+        &copy; 2026 CommHealth. All rights reserved. Providing secure health analytics and recommendations.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Central API Logic -->
+  <script src="js/api.js"></script>
+  <!-- Report Generation Logic -->
+  <script src="js/report.js"></script>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - CommHealth</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+  
+  <!-- CDNs for Export & Charting libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="nav-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>CommHealth Admin</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#objectives">Objective</a></li>
+        <li><a href="survey.html">Take Survey</a></li>
+        <li><a href="surveys.html" class="active">Admin Dashboard</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" aria-label="Toggle dark/light mode">
+          <i class="fa-solid fa-moon"></i>
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <button id="btn-logout" class="btn btn-secondary" style="display: none;">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Admin Panel Content (Protected) -->
+  <main class="container admin-grid" id="admin-panel" style="display: none;">
+    
+    <!-- Tab Controls -->
+    <div class="admin-tabs">
+      <button class="tab-btn active" data-tab="tab-analytics">
+        <i class="fa-solid fa-chart-line"></i> Dashboard Analytics
+      </button>
+      <button class="tab-btn" data-tab="tab-records">
+        <i class="fa-solid fa-folder-open"></i> Records Directory
+      </button>
+    </div>
+
+    <!-- TAB 1: Analytics & Charts -->
+    <section id="tab-analytics" class="tab-content active">
+      
+      <!-- Metrics overview cards inside admin dashboard -->
+      <div class="stats-grid" style="margin-top: 10px;">
+        <div class="stats-card">
+          <div class="stats-icon-wrapper blue">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-value" id="admin-total-surveys">0</span>
+            <span class="stats-label">Total Submissions</span>
+          </div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-icon-wrapper green">
+            <i class="fa-solid fa-shield-heart"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-value" id="admin-healthy">0</span>
+            <span class="stats-label">Healthy Records</span>
+          </div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-icon-wrapper red">
+            <i class="fa-solid fa-heart-crack"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-value" id="admin-at-risk">0</span>
+            <span class="stats-label">At Risk Records</span>
+          </div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-icon-wrapper warning">
+            <i class="fa-solid fa-calculator"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-value" id="admin-avg-bmi">0</span>
+            <span class="stats-label">Average BMI</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Area -->
+      <div class="charts-grid">
+        
+        <!-- Chart A: BMI Distribution -->
+        <div class="chart-card">
+          <h3>BMI Category Distribution</h3>
+          <div class="chart-wrapper">
+            <canvas id="bmiChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart B: Health Status distribution -->
+        <div class="chart-card">
+          <h3>Health Status Classification</h3>
+          <div class="chart-wrapper">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart C: Age distribution -->
+        <div class="chart-card">
+          <h3>Age Cohort Distribution</h3>
+          <div class="chart-wrapper">
+            <canvas id="ageChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TAB 2: Table Records and Controls -->
+    <section id="tab-records" class="tab-content">
+      
+      <!-- Toolbar: Search, Filters, Exports -->
+      <div class="admin-toolbar">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="record-search" class="search-input" placeholder="Search records by name...">
+        </div>
+        
+        <div class="filter-group">
+          <select id="filter-status" class="filter-select">
+            <option value="">All Health Statuses</option>
+            <option value="Healthy">Healthy</option>
+            <option value="Needs Improvement">Needs Improvement</option>
+            <option value="At Risk">At Risk</option>
+          </select>
+
+          <select id="sort-by" class="filter-select">
+            <option value="createdAt">Date (Newest First)</option>
+            <option value="name">Name (A-Z)</option>
+            <option value="age">Age (Youngest First)</option>
+            <option value="bmi">BMI (Lowest First)</option>
+          </select>
+          
+          <button id="btn-export-excel" class="btn btn-secondary" title="Export current view to Excel">
+            <i class="fa-solid fa-file-excel"></i> Export Excel
+          </button>
+          <button id="btn-export-pdf" class="btn btn-secondary" title="Export current view to PDF">
+            <i class="fa-solid fa-file-pdf"></i> Export PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Table View -->
+      <div class="table-container">
+        <table class="records-table">
+          <thead>
+            <tr>
+              <th>Survey ID</th>
+              <th>Name</th>
+              <th>Age</th>
+              <th>Gender</th>
+              <th>Occupation</th>
+              <th>BMI</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="records-table-body">
+            <!-- Populated dynamically via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="pagination">
+        <div class="text-muted" id="pagination-info">Showing 0 to 0 of 0 entries</div>
+        <div class="pagination-pages" id="pagination-controls">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Login Overlay Modal (Auth Guard) -->
+  <div id="auth-overlay" class="auth-overlay">
+    <div class="auth-card">
+      <div class="text-center">
+        <i class="fa-solid fa-lock" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 12px;"></i>
+        <h2>Admin Authentication</h2>
+        <p class="text-muted" style="font-size: 0.85rem;">Access restricted to healthcare coordinators.</p>
+      </div>
+
+      <form id="admin-login-form" class="auth-form">
+        <div class="form-group">
+          <label for="login-username">Username</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-user"></i>
+            <input type="text" id="login-username" class="form-control" placeholder="Enter username" required>
+          </div>
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label for="login-password">Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-key"></i>
+            <input type="password" id="login-password" class="form-control" placeholder="Enter password" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+          <i class="fa-solid fa-right-to-bracket"></i> Login to System
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Record Dialog (Modal) -->
+  <div id="edit-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-user-pen"></i> Edit Survey Information</h3>
+        <button id="btn-close-edit" class="modal-close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      
+      <form id="edit-survey-form" class="survey-form">
+        <input type="hidden" id="edit-record-id">
+        
+        <!-- Form grid cloned from survey.html but optimized -->
+        <div class="form-grid">
+          <div class="form-group form-group-full">
+            <label for="edit-name">Full Name</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-user"></i>
+              <input type="text" id="edit-name" class="form-control" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="edit-age">Age</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-cake-candles"></i>
+              <input type="number" id="edit-age" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-gender">Gender</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-venus-mars"></i>
+              <select id="edit-gender" class="form-control" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group form-group-full">
+            <label for="edit-occupation">Occupation</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-briefcase"></i>
+              <input type="text" id="edit-occupation" class="form-control" required>
+            </div>
+          </div>
+
+          <!-- Medical variables -->
+          <div class="form-group">
+            <label for="edit-height">Height (cm)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-ruler-vertical"></i>
+              <input type="number" id="edit-height" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-weight">Weight (kg)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-weight-scale"></i>
+              <input type="number" id="edit-weight" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-temp">Temperature (°C)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-thermometer"></i>
+              <input type="number" step="0.1" id="edit-temp" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-pulse">Pulse Rate (bpm)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-heart-pulse"></i>
+              <input type="number" id="edit-pulse" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-oxygen">Oxygen Level (%)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-wind"></i>
+              <input type="number" id="edit-oxygen" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-sugar">Blood Sugar (mg/dL)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-droplet"></i>
+              <input type="number" id="edit-sugar" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-systolic">BP (Systolic)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-gauge"></i>
+              <input type="number" id="edit-systolic" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="edit-diastolic">BP (Diastolic)</label>
+            <div class="input-wrapper">
+              <i class="fa-solid fa-gauge-simple"></i>
+              <input type="number" id="edit-diastolic" class="form-control" required>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">
+          <i class="fa-solid fa-floppy-disk"></i> Save Changes & Recalculate
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="margin-top: 80px;">
+    <div class="container footer-content">
+      <div class="footer-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>Community Health Monitoring & Awareness System</span>
+      </div>
+      <p class="text-muted" style="font-size: 0.85rem;">
+        &copy; 2026 CommHealth. All rights reserved. Providing secure health analytics and recommendations.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Central API Logic -->
+  <script src="js/api.js"></script>
+  <!-- Surveys List & Admin Dashboard logic -->
+  <script src="js/surveys.js"></script>
+</body>
+</html>

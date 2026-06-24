@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Survey - CommHealth</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="nav-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>CommHealth</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#objectives">Objective</a></li>
+        <li><a href="survey.html" class="active">Take Survey</a></li>
+        <li><a href="surveys.html">Admin Dashboard</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" aria-label="Toggle dark/light mode">
+          <i class="fa-solid fa-moon"></i>
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <a href="index.html" class="btn btn-secondary">Back to Home</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Page Header -->
+  <header class="page-header">
+    <div class="container">
+      <h1>Community Health Survey</h1>
+      <p>Please enter accurate physiological parameters. All data is processed securely to generate your health index.</p>
+    </div>
+  </header>
+
+  <!-- Survey Form Wrapper -->
+  <main class="survey-wrapper">
+    <div class="container">
+      <div class="survey-card">
+        <form id="health-survey-form" class="survey-form" novalidate>
+          
+          <!-- Section A: Personal Details -->
+          <div class="form-section">
+            <h3 class="form-section-title">Personal Information</h3>
+            <div class="form-grid">
+              <!-- Name -->
+              <div class="form-group form-group-full">
+                <label for="name">Full Name <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-user"></i>
+                  <input type="text" id="name" name="name" class="form-control" placeholder="e.g. John Doe" required>
+                </div>
+              </div>
+              
+              <!-- Age -->
+              <div class="form-group">
+                <label for="age">Age (Years) <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-cake-candles"></i>
+                  <input type="number" id="age" name="age" class="form-control" placeholder="e.g. 35" min="1" max="120" required>
+                </div>
+              </div>
+              
+              <!-- Gender -->
+              <div class="form-group">
+                <label for="gender">Gender <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-venus-mars"></i>
+                  <select id="gender" name="gender" class="form-control" required>
+                    <option value="" disabled selected>Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Occupation -->
+              <div class="form-group form-group-full">
+                <label for="occupation">Occupation <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-briefcase"></i>
+                  <input type="text" id="occupation" name="occupation" class="form-control" placeholder="e.g. Teacher, Engineer, Student" required>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section B: Physiological Metrics -->
+          <div class="form-section">
+            <h3 class="form-section-title">Health Information</h3>
+            <div class="form-grid">
+              
+              <!-- Height -->
+              <div class="form-group">
+                <label for="height">Height <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-ruler-vertical"></i>
+                  <input type="number" id="height" name="height" class="form-control" placeholder="e.g. 175" min="30" max="300" required>
+                  <span class="unit-tag">cm</span>
+                </div>
+              </div>
+
+              <!-- Weight -->
+              <div class="form-group">
+                <label for="weight">Weight <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-weight-scale"></i>
+                  <input type="number" id="weight" name="weight" class="form-control" placeholder="e.g. 70" min="2" max="500" required>
+                  <span class="unit-tag">kg</span>
+                </div>
+              </div>
+
+              <!-- Temperature -->
+              <div class="form-group">
+                <label for="temperature">Body Temperature <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-thermometer"></i>
+                  <input type="number" id="temperature" name="temperature" step="0.1" class="form-control" placeholder="e.g. 36.5" min="30" max="45" required>
+                  <span class="unit-tag">°C</span>
+                </div>
+              </div>
+
+              <!-- Pulse Rate -->
+              <div class="form-group">
+                <label for="pulseRate">Pulse Rate <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-heart-pulse"></i>
+                  <input type="number" id="pulseRate" name="pulseRate" class="form-control" placeholder="e.g. 72" min="20" max="250" required>
+                  <span class="unit-tag">bpm</span>
+                </div>
+              </div>
+
+              <!-- Oxygen Level -->
+              <div class="form-group">
+                <label for="oxygenLevel">Oxygen Level (SpO2) <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-wind"></i>
+                  <input type="number" id="oxygenLevel" name="oxygenLevel" class="form-control" placeholder="e.g. 98" min="50" max="100" required>
+                  <span class="unit-tag">%</span>
+                </div>
+              </div>
+
+              <!-- Blood Sugar -->
+              <div class="form-group">
+                <label for="bloodSugar">Blood Sugar (Random) <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-droplet"></i>
+                  <input type="number" id="bloodSugar" name="bloodSugar" class="form-control" placeholder="e.g. 100" min="20" max="1000" required>
+                  <span class="unit-tag">mg/dL</span>
+                </div>
+              </div>
+
+              <!-- BP Systolic -->
+              <div class="form-group">
+                <label for="bloodPressureSystolic">Blood Pressure (Systolic) <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-gauge"></i>
+                  <input type="number" id="bloodPressureSystolic" name="bloodPressureSystolic" class="form-control" placeholder="e.g. 120" min="50" max="250" required>
+                  <span class="unit-tag">mmHg</span>
+                </div>
+              </div>
+
+              <!-- BP Diastolic -->
+              <div class="form-group">
+                <label for="bloodPressureDiastolic">Blood Pressure (Diastolic) <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-gauge-simple"></i>
+                  <input type="number" id="bloodPressureDiastolic" name="bloodPressureDiastolic" class="form-control" placeholder="e.g. 80" min="30" max="150" required>
+                  <span class="unit-tag">mmHg</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Section C: Live Health Feedback Panel -->
+          <div class="live-feedback">
+            <h4><i class="fa-solid fa-calculator"></i> Real-time BMI & Vitals Assessment</h4>
+            <div class="live-feedback-grid">
+              <div class="feedback-item">
+                <span>Calculated BMI:</span>
+                <span id="live-bmi" class="feedback-val">--</span>
+              </div>
+              <div class="feedback-item">
+                <span>BMI Classification:</span>
+                <span id="live-bmi-cat" class="feedback-val">--</span>
+              </div>
+              <div class="feedback-item">
+                <span>SpO2 Alert:</span>
+                <span id="live-spo2-alert" class="feedback-val">Normal</span>
+              </div>
+              <div class="feedback-item">
+                <span>BP Classification:</span>
+                <span id="live-bp-cat" class="feedback-val">--</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; max-width: 300px;">
+              <i class="fa-solid fa-square-poll-horizontal"></i> Generate Health Report
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>Community Health Monitoring & Awareness System</span>
+      </div>
+      <p class="text-muted" style="font-size: 0.85rem;">
+        &copy; 2026 CommHealth. All rights reserved. Providing secure health analytics and recommendations.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Central API Logic -->
+  <script src="js/api.js"></script>
+  <!-- Survey Form Logic -->
+  <script src="js/survey.js"></script>
+</body>
+</html>

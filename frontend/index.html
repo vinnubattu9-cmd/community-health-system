@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Health Monitoring & Awareness System</title>
+  <!-- Google Fonts & FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="nav-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>CommHealth</span>
+      </a>
+      
+      <ul class="nav-links">
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="#objectives">Objective</a></li>
+        <li><a href="survey.html">Take Survey</a></li>
+        <li><a href="surveys.html">Admin Dashboard</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button class="theme-toggle-btn" aria-label="Toggle dark/light mode">
+          <i class="fa-solid fa-moon"></i>
+          <i class="fa-solid fa-sun"></i>
+        </button>
+        <a href="survey.html" class="btn btn-primary">Start Survey</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <span class="hero-tag">Empowering Communities</span>
+        <h1 class="hero-title">Community Health Monitoring & Awareness</h1>
+        <p class="hero-desc">
+          A digital initiative designed to record health metrics, analyze community wellness trends, calculate body mass indices (BMI), identify health warning signs early, and generate automated medical guidelines to build healthier and more resilient neighborhoods.
+        </p>
+        <div class="hero-buttons">
+          <a href="survey.html" class="btn btn-primary btn-lg">
+            <i class="fa-solid fa-file-medical"></i> Start Community Survey
+          </a>
+          <a href="#objectives" class="btn btn-secondary btn-lg">Learn More</a>
+        </div>
+      </div>
+      <div class="hero-image-container">
+        <div class="hero-bg-shapes"></div>
+        <!-- We construct a clean medical mockup vector via CSS/SVG or a stylish representation -->
+        <svg viewBox="0 0 500 400" class="hero-image" width="100%" height="auto" style="border-radius: var(--radius-lg); background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);">
+          <defs>
+            <linearGradient id="svgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.6" />
+            </linearGradient>
+          </defs>
+          <!-- Grid background lines -->
+          <line x1="50" y1="0" x2="50" y2="400" stroke="rgba(255,255,255,0.05)" />
+          <line x1="150" y1="0" x2="150" y2="400" stroke="rgba(255,255,255,0.05)" />
+          <line x1="250" y1="0" x2="250" y2="400" stroke="rgba(255,255,255,0.05)" />
+          <line x1="350" y1="0" x2="350" y2="400" stroke="rgba(255,255,255,0.05)" />
+          <line x1="450" y1="0" x2="450" y2="400" stroke="rgba(255,255,255,0.05)" />
+          
+          <line x1="0" y1="100" x2="500" y2="100" stroke="rgba(255,255,255,0.05)" />
+          <line x1="0" y1="200" x2="500" y2="200" stroke="rgba(255,255,255,0.05)" />
+          <line x1="0" y1="300" x2="500" y2="300" stroke="rgba(255,255,255,0.05)" />
+
+          <!-- Pulse Wave representation -->
+          <path d="M 0 200 L 120 200 L 140 130 L 160 270 L 180 180 L 190 210 L 200 200 L 320 200 L 340 140 L 360 260 L 375 190 L 390 205 L 400 200 L 500 200" 
+                fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.8; filter: drop-shadow(0px 0px 8px rgba(255,255,255,0.6));" />
+          
+          <!-- Heart symbol in center -->
+          <path d="M 250 140 C 230 110, 190 110, 190 150 C 190 200, 250 250, 250 260 C 250 250, 310 200, 310 150 C 310 110, 270 110, 250 140 Z" 
+                fill="url(#svgGrad)" style="filter: drop-shadow(0px 10px 15px rgba(0,0,0,0.15));" />
+          <path d="M 250 150 C 235 125, 205 125, 205 155 C 205 190, 250 230, 250 240 C 250 230, 295 190, 295 155 C 295 125, 265 125, 250 150 Z" 
+                fill="#ef4444" />
+          
+          <!-- Small vital indicators decoration -->
+          <circle cx="90" cy="120" r="15" fill="rgba(255,255,255,0.2)" />
+          <text x="90" y="125" font-family="sans-serif" font-weight="bold" font-size="12" fill="#ffffff" text-anchor="middle">O₂</text>
+          
+          <circle cx="410" cy="280" r="18" fill="rgba(255,255,255,0.2)" />
+          <text x="410" y="284" font-family="sans-serif" font-weight="bold" font-size="10" fill="#ffffff" text-anchor="middle">BMI</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- Real-Time Stats Grid -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <!-- Card 1: Total Surveys -->
+        <div class="stats-card">
+          <div class="stats-icon-wrapper blue">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-value" id="stat-total-surveys"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            <span class="stats-label">Total Surveys</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Healthy Individuals -->
+        <div class="stats-card">
+          <div class="stats-icon-wrapper green">
+            <i class="fa-solid fa-heart-circle-check"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-value" id="stat-healthy"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            <span class="stats-label">Healthy Individuals</span>
+          </div>
+        </div>
+
+        <!-- Card 3: At Risk Individuals -->
+        <div class="stats-card">
+          <div class="stats-icon-wrapper red">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-value" id="stat-at-risk"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            <span class="stats-label">At Risk Individuals</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Average BMI -->
+        <div class="stats-card">
+          <div class="stats-icon-wrapper warning">
+            <i class="fa-solid fa-weight-scale"></i>
+          </div>
+          <div class="stats-info">
+            <span class="stats-value" id="stat-avg-bmi"><i class="fa-solid fa-spinner fa-spin"></i></span>
+            <span class="stats-label">Average BMI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Objective Section -->
+  <section class="objectives" id="objectives">
+    <div class="container">
+      <div class="section-title-area">
+        <h2>Core Objectives</h2>
+        <p>A systematic framework dedicated to improving local public health oversight, medical awareness, and wellness accessibility.</p>
+      </div>
+      
+      <div class="objective-grid">
+        <!-- Card 1: Health Monitoring -->
+        <div class="objective-card">
+          <div class="objective-icon">
+            <i class="fa-solid fa-desktop-medical"></i>
+          </div>
+          <h3>Health Monitoring</h3>
+          <p>Enables individuals to log critical health parameters (BP, SpO2, glucose, temperature) to keep a clear record of personal health history.</p>
+        </div>
+
+        <!-- Card 2: Health Analysis -->
+        <div class="objective-card">
+          <div class="objective-icon">
+            <i class="fa-solid fa-chart-line"></i>
+          </div>
+          <h3>Health Analysis</h3>
+          <p>Runs intelligent client and server-side logic to assess vital stability, calculate BMI categories, and flag potential risk areas instantly.</p>
+        </div>
+
+        <!-- Card 3: Report Generation -->
+        <div class="objective-card">
+          <div class="objective-icon">
+            <i class="fa-solid fa-file-pdf"></i>
+          </div>
+          <h3>Report Generation</h3>
+          <p>Creates detailed, structured medical reports containing recommendations, ready for sharing, printing, or offline A4 PDF downloading.</p>
+        </div>
+
+        <!-- Card 4: Community Awareness -->
+        <div class="objective-card">
+          <div class="objective-icon">
+            <i class="fa-solid fa-people-group"></i>
+          </div>
+          <h3>Community Awareness</h3>
+          <p>Aggregates survey insights anonymously into central charts to guide policy decisions, medical camps, and wellness initiatives.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="container" id="contact" style="padding: 60px 0;">
+    <div class="survey-card" style="padding: 30px; text-align: center;">
+      <h2 style="margin-bottom: 12px; font-size: 1.75rem;">Need Support or Have Inquiries?</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 24px; max-width: 600px; margin-left: auto; margin-right: auto;">
+        We are partnering with community clinics, state healthcare units, and municipal authorities. Reach out to our system coordinators for partnership models and technical queries.
+      </p>
+      <div style="display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin-bottom: 20px;">
+        <span style="font-weight: 600; color: var(--text-primary);"><i class="fa-solid fa-envelope" style="color: var(--primary); margin-right: 8px;"></i> support@commhealth.org</span>
+        <span style="font-weight: 600; color: var(--text-primary);"><i class="fa-solid fa-phone" style="color: var(--primary); margin-right: 8px;"></i> +1 (800) 555-0199</span>
+        <span style="font-weight: 600; color: var(--text-primary);"><i class="fa-solid fa-location-dot" style="color: var(--primary); margin-right: 8px;"></i> Medical Center Plaza, Suite 400</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-logo">
+        <i class="fa-solid fa-heart-pulse"></i>
+        <span>Community Health Monitoring & Awareness System</span>
+      </div>
+      <p class="text-muted" style="font-size: 0.85rem;">
+        &copy; 2026 CommHealth. All rights reserved. Providing secure health analytics and recommendations.
+      </p>
+      <div class="footer-socials">
+        <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#"><i class="fa-brands fa-twitter"></i></a>
+        <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Central API Logic -->
+  <script src="js/api.js"></script>
+  <!-- Landing Page Script -->
+  <script src="js/app.js"></script>
+</body>
+</html>
