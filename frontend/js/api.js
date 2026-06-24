@@ -1,6 +1,6 @@
 // Centralized API Base URL configuration
-// Using relative path since Express hosts the frontend statically.
-const API_BASE = '/api';
+// Using hosted backend API URL
+const API_BASE = 'https://community-health-system.onrender.com/api';
 
 // Token Management Helpers
 const getAuthToken = () => localStorage.getItem('admin_token');
