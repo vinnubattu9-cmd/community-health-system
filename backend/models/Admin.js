@@ -13,6 +13,12 @@ const AdminSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Password is required']
   },
+  role: {
+    type: String,
+    required: [true, 'Role is required'],
+    enum: ['ASHA', 'ANM', 'PHC', 'NGO', 'SACHIVALAYAM'],
+    default: 'ASHA'
+  },
   createdAt: {
     type: Date,
     default: Date.now

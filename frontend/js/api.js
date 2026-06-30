@@ -311,5 +311,136 @@ const API = {
       console.error('Error fetching public stats:', error);
       return null;
     }
+  },
+
+  // Citizen History (Follow-up comparisons)
+  getCitizenHistory: async (citizenId) => {
+    try {
+      const response = await fetch(`${API_BASE}/surveys/citizen/${citizenId}/history`, {
+        method: 'GET',
+        headers: getHeaders()
+      });
+      const resData = await response.json();
+      if (!response.ok) {
+        throw new Error(resData.message || 'Failed to fetch citizen history');
+      }
+      return resData.data;
+    } catch (error) {
+      showToast('History Error', error.message, 'error');
+      throw error;
+    }
+  },
+
+  // High-Priority Follow-up List
+  getPriorityList: async (village = '') => {
+    try {
+      const query = village ? `?village=${encodeURIComponent(village)}` : '';
+      const response = await fetch(`${API_BASE}/plans/priority-list${query}`, {
+        method: 'GET',
+        headers: getHeaders()
+      });
+      const resData = await response.json();
+      if (response.status === 401) {
+        removeAuthToken();
+        throw new Error('UNAUTHORIZED');
+      }
+      if (!response.ok) {
+        throw new Error(resData.message || 'Failed to fetch priority list');
+      }
+      return resData.data;
+    } catch (error) {
+      if (error.message !== 'UNAUTHORIZED') {
+        showToast('Priority List Error', error.message, 'error');
+      }
+      throw error;
+    }
+  },
+
+  // Health Camp Recommendations
+  getCampRecommendations: async (village = '') => {
+    try {
+      const query = village ? `?village=${encodeURIComponent(village)}` : '';
+      const response = await fetch(`${API_BASE}/plans/camp-recommendations${query}`, {
+        method: 'GET',
+        headers: getHeaders()
+      });
+      const resData = await response.json();
+      if (response.status === 401) {
+        removeAuthToken();
+        throw new Error('UNAUTHORIZED');
+      }
+      if (!response.ok) {
+        throw new Error(resData.message || 'Failed to fetch camp recommendations');
+      }
+      return resData.data;
+    } catch (error) {
+      if (error.message !== 'UNAUTHORIZED') {
+        showToast('Camp Recommendations Error', error.message, 'error');
+      }
+      throw error;
+    }
+  },
+
+  // Village Action Plan
+  getVillageActionPlan: async (village) => {
+    try {
+      const response = await fetch(`${API_BASE}/plans/action-plan/${encodeURIComponent(village)}`, {
+        method: 'GET',
+        headers: getHeaders()
+      });
+      const resData = await response.json();
+      if (response.status === 401) {
+        removeAuthToken();
+        throw new Error('UNAUTHORIZED');
+      }
+      if (!response.ok) {
+        throw new Error(resData.message || 'Failed to fetch village action plan');
+      }
+      return resData.data;
+    } catch (error) {
+      if (error.message !== 'UNAUTHORIZED') {
+        showToast('Action Plan Error', error.message, 'error');
+      }
+      throw error;
+    }
+  },
+
+  // Ask Chatbot (Gemini AI)
+  askChatbot: async (message, history = []) => {
+    try {
+      const response = await fetch(`${API_BASE}/gemini/chat`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ message, history })
+      });
+      const resData = await response.json();
+      if (!response.ok) {
+        throw new Error(resData.message || 'AI Chatbot error');
+      }
+      return resData; // returns { reply, isFallback }
+    } catch (error) {
+      showToast('AI Chat Error', error.message, 'error');
+      throw error;
+    }
+  },
+
+  // Generate Report Advisory (Gemini AI)
+  generateAdvisory: async (surveyData) => {
+    try {
+      const response = await fetch(`${API_BASE}/gemini/advisory`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(surveyData)
+      });
+      const resData = await response.json();
+      if (!response.ok) {
+        throw new Error(resData.message || 'AI Advisory error');
+      }
+      return resData.advisory;
+    } catch (error) {
+      console.error('AI Advisory generation failed:', error);
+      // Fallback text if API fails
+      return `Primary vital signs and physiological parameters recorded. Regular follow-up and monitoring at the nearest Primary Health Centre is advised.`;
+    }
   }
 };

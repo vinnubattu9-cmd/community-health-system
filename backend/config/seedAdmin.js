@@ -1,21 +1,28 @@
-const Admin = require('../models/Admin');
+const dbManager = require('./dbManager');
 
-// Seeds the default admin user (bhanu / 123456) into MongoDB if not already present
+// Seeds the default users for each role (ASHA, ANM, PHC, NGO, SACHIVALAYAM) if not present
 const seedAdmin = async () => {
   try {
-    const existingAdmin = await Admin.findOne({ username: 'bhanu' });
+    const defaultUsers = [
+      { username: 'bhanu', password: '123456', role: 'SACHIVALAYAM' }, // Default account
+      { username: 'asha_worker', password: '123456', role: 'ASHA' },
+      { username: 'anm_nurse', password: '123456', role: 'ANM' },
+      { username: 'phc_officer', password: '123456', role: 'PHC' },
+      { username: 'ngo_coordinator', password: '123456', role: 'NGO' },
+      { username: 'sachivalayam_admin', password: '123456', role: 'SACHIVALAYAM' }
+    ];
 
-    if (!existingAdmin) {
-      await Admin.create({
-        username: 'bhanu',
-        password: '123456'  // Will be hashed automatically by pre-save hook
-      });
-      console.log('✅ Default admin account created: username=bhanu');
-    } else {
-      console.log('ℹ️  Admin account already exists in MongoDB: username=bhanu');
+    for (const u of defaultUsers) {
+      const existing = await dbManager.findUser(u.username);
+      if (!existing) {
+        await dbManager.createUser(u);
+        console.log(`✅ Seeded user: username=${u.username}, role=${u.role}`);
+      } else {
+        console.log(`ℹ️  User already exists: username=${u.username}`);
+      }
     }
   } catch (error) {
-    console.error('❌ Error seeding admin account:', error.message);
+    console.error('❌ Error seeding accounts:', error.message);
   }
 };
 

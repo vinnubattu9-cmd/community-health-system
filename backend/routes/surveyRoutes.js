@@ -4,6 +4,7 @@ const {
   createSurvey,
   getSurveys,
   getSurveyById,
+  getCitizenHistory,
   updateSurvey,
   deleteSurvey,
   getStats,
@@ -16,6 +17,9 @@ router.post('/', createSurvey);
 
 // Public route to get landing page stats
 router.get('/public-stats', getPublicStats);
+
+// Get historical surveys for a specific citizen (Follow-up tracking)
+router.get('/citizen/:citizenId/history', getCitizenHistory);
 
 // Protected routes (Admin-only stats)
 router.get('/stats', protect, getStats);

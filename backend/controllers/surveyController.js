@@ -1,10 +1,14 @@
-const Survey = require('../models/Survey');
+const dbManager = require('../config/dbManager');
 
 // Helper function to perform health analysis
 function analyzeHealth(data) {
-  const { height, weight, temperature, pulseRate, oxygenLevel, bloodPressureSystolic, bloodPressureDiastolic, bloodSugar } = data;
+  const { 
+    height, weight, temperature, pulseRate, oxygenLevel, 
+    bloodPressureSystolic, bloodPressureDiastolic, bloodSugar,
+    lifestyle = {}, medicalHistory = {}
+  } = data;
   
-  // BMI calculation: weight (kg) / height (m)^2
+  // BMI calculation
   const heightM = height / 100;
   const bmi = parseFloat((weight / (heightM * heightM)).toFixed(1));
   
@@ -20,107 +24,128 @@ function analyzeHealth(data) {
   }
 
   const recommendations = [];
-  let riskPoints = 0;
-  let needImpPoints = 0;
+  let healthScore = 100;
 
-  // BMI Recommendations
+  // 1. BMI Recommendations & Deductions
   if (bmiCategory === 'Underweight') {
     recommendations.push("Increase caloric intake with nutrient-dense foods (nuts, seeds, lean proteins).");
     recommendations.push("Consider strength training to build muscle mass safely.");
-    needImpPoints += 1;
+    healthScore -= 10;
   } else if (bmiCategory === 'Overweight') {
     recommendations.push("Incorporate 150 minutes of moderate cardiovascular exercise per week.");
     recommendations.push("Adopt a balanced, portion-controlled diet focusing on whole foods.");
-    needImpPoints += 1;
+    healthScore -= 5;
   } else if (bmiCategory === 'Obese') {
     recommendations.push("Consult a nutritionist for a structured weight management plan.");
     recommendations.push("Engage in low-impact activities (swimming, walking) to protect joints.");
-    riskPoints += 1.5;
+    healthScore -= 15;
   } else {
     recommendations.push("Maintain your current balanced diet and active lifestyle.");
   }
 
-  // Oxygen Level (SpO2)
+  // 2. Oxygen Level (SpO2)
   if (oxygenLevel < 92) {
     recommendations.push("CRITICAL: Low blood oxygen (SpO2 < 92%). Seek immediate medical attention.");
-    riskPoints += 3;
+    healthScore -= 30;
   } else if (oxygenLevel >= 92 && oxygenLevel < 95) {
-    recommendations.push("Mild hypoxia. Rest in a well-ventilated room. Consult a doctor if levels continue to drop.");
-    riskPoints += 2;
+    recommendations.push("Mild hypoxia. Rest in a well-ventilated room. Consult a doctor.");
+    healthScore -= 15;
   }
 
-  // Body Temperature (Celsius)
+  // 3. Body Temperature (Celsius)
   if (temperature > 38.5) {
     recommendations.push("High fever detected. Stay hydrated, rest, and consult a healthcare provider.");
-    riskPoints += 2;
+    healthScore -= 20;
   } else if (temperature > 37.5 && temperature <= 38.5) {
-    recommendations.push("Low-grade fever. Monitor your temperature closely, stay hydrated, and rest.");
-    needImpPoints += 1;
+    recommendations.push("Low-grade fever. Monitor temperature closely, stay hydrated, and rest.");
+    healthScore -= 10;
   } else if (temperature < 35.5) {
     recommendations.push("Low body temperature (Hypothermia risk). Warm up with layers and consult a doctor.");
-    riskPoints += 2;
+    healthScore -= 15;
   }
 
-  // Pulse Rate (bpm)
-  if (pulseRate > 100) {
-    recommendations.push("High resting heart rate (Tachycardia). Avoid caffeine and manage stress. Consult a doctor.");
-    needImpPoints += 1;
-    if (pulseRate > 120) riskPoints += 1;
+  // 4. Pulse Rate (bpm)
+  if (pulseRate > 120) {
+    recommendations.push("Severely high heart rate. Avoid stimulants, rest, and seek medical attention.");
+    healthScore -= 15;
+  } else if (pulseRate > 100 && pulseRate <= 120) {
+    recommendations.push("High resting heart rate (Tachycardia). Manage stress and avoid caffeine.");
+    healthScore -= 5;
   } else if (pulseRate < 60) {
-    recommendations.push("Low heart rate (Bradycardia). Seek medical evaluation if experiencing fatigue or dizziness.");
-    needImpPoints += 1;
+    recommendations.push("Low heart rate (Bradycardia). Seek medical evaluation if experiencing dizziness.");
+    healthScore -= 5;
   }
 
-  // Blood Pressure
-  const sys = bloodPressureSystolic;
-  const dia = bloodPressureDiastolic;
+  // 5. Blood Pressure
+  const sys = parseInt(bloodPressureSystolic);
+  const dia = parseInt(bloodPressureDiastolic);
   if (sys >= 180 || dia >= 120) {
     recommendations.push("CRITICAL: Hypertensive crisis. Seek emergency medical attention immediately.");
-    riskPoints += 3;
+    healthScore -= 30;
   } else if (sys >= 140 || dia >= 90) {
     recommendations.push("Stage 2 Hypertension. Limit sodium intake, manage stress, and consult a doctor.");
-    riskPoints += 2;
+    healthScore -= 20;
   } else if ((sys >= 130 && sys <= 139) || (dia >= 80 && dia <= 89)) {
-    recommendations.push("Stage 1 Hypertension. Focus on regular exercise, reducing sodium, and monitoring BP.");
-    needImpPoints += 1;
+    recommendations.push("Stage 1 Hypertension. Focus on regular exercise and reducing sodium.");
+    healthScore -= 10;
   } else if (sys >= 120 && sys < 130 && dia < 80) {
-    recommendations.push("Elevated Blood Pressure. Monitor levels regularly and adopt a heart-healthy diet.");
-    needImpPoints += 1;
+    recommendations.push("Elevated Blood Pressure. Monitor levels and adopt a heart-healthy diet.");
+    healthScore -= 10;
   } else if (sys < 90 || dia < 60) {
-    recommendations.push("Low Blood Pressure (Hypotension). Ensure adequate hydration. Consult a doctor.");
-    needImpPoints += 1;
+    recommendations.push("Low Blood Pressure (Hypotension). Ensure adequate hydration.");
+    healthScore -= 10;
   }
 
-  // Blood Sugar (mg/dL)
-  if (bloodSugar >= 200) {
-    recommendations.push("High blood sugar (hyperglycemia range). Consult a doctor immediately.");
-    riskPoints += 2.5;
-  } else if (bloodSugar >= 140 && bloodSugar < 200) {
-    recommendations.push("Impaired glucose tolerance (Pre-diabetic levels). Reduce sugar intake.");
-    needImpPoints += 1;
-  } else if (bloodSugar < 70) {
+  // 6. Blood Sugar (mg/dL)
+  const sugar = parseInt(bloodSugar);
+  if (sugar >= 200) {
+    recommendations.push("High blood sugar (hyperglycemia range). Seek medical consultation immediately.");
+    healthScore -= 25;
+  } else if (sugar >= 140 && sugar < 200) {
+    recommendations.push("Impaired glucose tolerance (Pre-diabetic levels). Reduce refined sugar intake.");
+    healthScore -= 10;
+  } else if (sugar < 70) {
     recommendations.push("Low blood sugar (hypoglycemia). Consume fast-acting sugar (fruit juice, honey).");
-    riskPoints += 2;
+    healthScore -= 25;
   }
 
-  // Final Health Status Classification
+  // 7. Lifestyle Deductions
+  if (lifestyle.smoking === 'Daily') healthScore -= 5;
+  if (lifestyle.alcohol === 'Daily') healthScore -= 5;
+  if (lifestyle.exercise === 'None') healthScore -= 5;
+
+  // 8. Chronic History Deductions
+  if (medicalHistory.diabetes) healthScore -= 5;
+  if (medicalHistory.hypertension) healthScore -= 5;
+  if (medicalHistory.heartDisease) healthScore -= 5;
+
+  // Clamp health score between 0 and 100
+  healthScore = Math.max(0, Math.min(100, healthScore));
+
+  // Risk Status Classification based on health score
   let status = 'Healthy';
-  if (riskPoints >= 2 || (riskPoints > 0 && needImpPoints >= 2)) {
-    status = 'At Risk';
-  } else if (needImpPoints > 0 || riskPoints > 0) {
+  if (healthScore >= 80) {
+    status = 'Healthy';
+  } else if (healthScore >= 60 && healthScore < 80) {
     status = 'Needs Improvement';
+  } else {
+    status = 'At Risk';
   }
 
-  if (recommendations.length === 0) {
-    recommendations.push("Your health parameters are in the optimal range. Continue your healthy routine!");
-  }
+  // Suspected Disease Analysis
+  const diseaseAnalysis = {
+    suspectedDiabetes: (sugar >= 200 || !!medicalHistory.diabetes),
+    suspectedHypertension: (sys >= 140 || dia >= 90 || !!medicalHistory.hypertension),
+    suspectedObesity: (bmi >= 30),
+    suspectedMalnutrition: (bmi < 18.5)
+  };
 
-  return { bmi, bmiCategory, status, recommendations };
+  return { bmi, bmiCategory, status, recommendations, healthScore, diseaseAnalysis };
 }
 
-// @desc    Submit new survey
+// @desc    Submit new survey (ASHA Workers)
 // @route   POST /api/surveys
-// @access  Public
+// @access  Public (or protected if preferred, but public for ASHA submit flexibility)
 exports.createSurvey = async (req, res) => {
   try {
     const analysis = analyzeHealth(req.body);
@@ -129,8 +154,7 @@ exports.createSurvey = async (req, res) => {
       ...analysis
     };
     
-    const survey = new Survey(surveyData);
-    await survey.save();
+    const survey = await dbManager.saveSurvey(surveyData);
     
     res.status(201).json({
       success: true,
@@ -144,62 +168,48 @@ exports.createSurvey = async (req, res) => {
   }
 };
 
-// @desc    Get all surveys with filter, search, sorting and pagination
+// @desc    Get all surveys with filters (Search, Status, Village)
 // @route   GET /api/surveys
-// @access  Private (Admin)
+// @access  Private (Admin / Workers)
 exports.getSurveys = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search = '', status = '', sortBy = 'createdAt', order = 'desc' } = req.query;
+    const { page = 1, limit = 10, search = '', status = '', village = '', sortBy = 'createdAt', order = 'desc' } = req.query;
 
-    const query = {};
-
-    // Search by name
-    if (search) {
-      query.name = { $regex: search, $options: 'i' };
-    }
-
-    // Filter by health status
-    if (status) {
-      query.status = status;
-    }
-
-    const sortOrder = order === 'asc' ? 1 : -1;
-    const sort = {};
-    sort[sortBy] = sortOrder;
-
-    const skipIndex = (page - 1) * limit;
-
-    const total = await Survey.countDocuments(query);
-    const surveys = await Survey.find(query)
-      .sort(sort)
-      .limit(parseInt(limit))
-      .skip(skipIndex);
+    const result = await dbManager.getSurveys({
+      page,
+      limit,
+      search,
+      status,
+      village,
+      sortBy,
+      order
+    });
 
     res.status(200).json({
       success: true,
-      count: surveys.length,
+      count: result.data.length,
       pagination: {
-        total,
+        total: result.total,
         page: parseInt(page),
         limit: parseInt(limit),
-        pages: Math.ceil(total / limit)
+        pages: result.pages
       },
-      data: surveys
+      data: result.data
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error'
+      message: error.message || 'Server Error retrieving surveys'
     });
   }
 };
 
 // @desc    Get survey by ID
 // @route   GET /api/surveys/:id
-// @access  Public
+// @access  Public (so reports can be shared via ID card link)
 exports.getSurveyById = async (req, res) => {
   try {
-    const survey = await Survey.findById(req.params.id);
+    const survey = await dbManager.getSurveyById(req.params.id);
     
     if (!survey) {
       return res.status(404).json({
@@ -220,9 +230,28 @@ exports.getSurveyById = async (req, res) => {
   }
 };
 
+// @desc    Get historical surveys for a specific citizen (Follow-up tracking)
+// @route   GET /api/surveys/citizen/:citizenId/history
+// @access  Public/Private
+exports.getCitizenHistory = async (req, res) => {
+  try {
+    const history = await dbManager.getSurveysByCitizenId(req.params.citizenId);
+    res.status(200).json({
+      success: true,
+      count: history.length,
+      data: history
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message || 'Error retrieving citizen history'
+    });
+  }
+};
+
 // @desc    Update survey record
 // @route   PUT /api/surveys/:id
-// @access  Private (Admin)
+// @access  Private (Admin / ASHA / ANM)
 exports.updateSurvey = async (req, res) => {
   try {
     const analysis = analyzeHealth(req.body);
@@ -231,10 +260,7 @@ exports.updateSurvey = async (req, res) => {
       ...analysis
     };
 
-    const survey = await Survey.findByIdAndUpdate(req.params.id, updatedData, {
-      new: true,
-      runValidators: true
-    });
+    const survey = await dbManager.updateSurvey(req.params.id, updatedData);
 
     if (!survey) {
       return res.status(404).json({
@@ -257,12 +283,12 @@ exports.updateSurvey = async (req, res) => {
 
 // @desc    Delete survey record
 // @route   DELETE /api/surveys/:id
-// @access  Private (Admin)
+// @access  Private (Admin / SACHIVALAYAM)
 exports.deleteSurvey = async (req, res) => {
   try {
-    const survey = await Survey.findByIdAndDelete(req.params.id);
+    const deleted = await dbManager.deleteSurvey(req.params.id);
 
-    if (!survey) {
+    if (!deleted) {
       return res.status(404).json({
         success: false,
         message: 'Survey record not found'
@@ -281,64 +307,67 @@ exports.deleteSurvey = async (req, res) => {
   }
 };
 
-// @desc    Get dashboard metrics & chart aggregates
+// @desc    Get dashboard metrics & chart aggregates (supports village filtering)
 // @route   GET /api/surveys/stats
-// @access  Private (Admin)
+// @access  Private (Admin / PHC / ANM / NGO)
 exports.getStats = async (req, res) => {
   try {
-    const totalSurveys = await Survey.countDocuments();
-    
-    // Aggregates
-    const healthyCount = await Survey.countDocuments({ status: 'Healthy' });
-    const needsImpCount = await Survey.countDocuments({ status: 'Needs Improvement' });
-    const atRiskCount = await Survey.countDocuments({ status: 'At Risk' });
-    
-    // Average BMI calculation
-    const avgBmiResult = await Survey.aggregate([
-      {
-        $group: {
-          _id: null,
-          avgBmi: { $avg: '$bmi' }
-        }
-      }
-    ]);
-    const averageBmi = avgBmiResult.length > 0 ? parseFloat(avgBmiResult[0].avgBmi.toFixed(1)) : 0;
-
-    // BMI categories distribution
-    const bmiUnderweight = await Survey.countDocuments({ bmiCategory: 'Underweight' });
-    const bmiHealthy = await Survey.countDocuments({ bmiCategory: 'Healthy' });
-    const bmiOverweight = await Survey.countDocuments({ bmiCategory: 'Overweight' });
-    const bmiObese = await Survey.countDocuments({ bmiCategory: 'Obese' });
-
-    // Age distribution buckets
-    const ageUnder18 = await Survey.countDocuments({ age: { $lt: 18 } });
-    const age18to35 = await Survey.countDocuments({ age: { $gte: 18, $lte: 35 } });
-    const age36to50 = await Survey.countDocuments({ age: { $gte: 36, $lte: 50 } });
-    const age51to65 = await Survey.countDocuments({ age: { $gte: 51, $lte: 65 } });
-    const ageOver65 = await Survey.countDocuments({ age: { $gt: 65 } });
+    const { village = '' } = req.query;
+    const stats = await dbManager.getStats({ village });
 
     res.status(200).json({
       success: true,
       data: {
         metrics: {
-          totalSurveys,
-          healthyCount,
-          needsImpCount,
-          atRiskCount,
-          averageBmi
+          totalSurveys: stats.totalSurveys,
+          healthyCount: stats.healthyCount,
+          needsImpCount: stats.needsImprovementCount,
+          atRiskCount: stats.atRiskCount,
+          averageBmi: stats.averageBmi,
+          pregnantCount: stats.pregnantCount
         },
         charts: {
           bmiDistribution: {
             labels: ['Underweight', 'Healthy', 'Overweight', 'Obese'],
-            values: [bmiUnderweight, bmiHealthy, bmiOverweight, bmiObese]
+            values: [
+              stats.bmiDistribution.Underweight || 0,
+              stats.bmiDistribution.Healthy || 0,
+              stats.bmiDistribution.Overweight || 0,
+              stats.bmiDistribution.Obese || 0
+            ]
           },
           healthStatus: {
             labels: ['Healthy', 'Needs Improvement', 'At Risk'],
-            values: [healthyCount, needsImpCount, atRiskCount]
+            values: [
+              stats.healthyCount,
+              stats.needsImprovementCount,
+              stats.atRiskCount
+            ]
           },
           ageDistribution: {
-            labels: ['Under 18', '18-35', '36-50', '51-65', 'Over 65'],
-            values: [ageUnder18, age18to35, age36to50, age51to65, ageOver65]
+            labels: ['Children (<18)', 'Adults (18-59)', 'Seniors (60+)'],
+            values: [
+              stats.ageDistribution.Children || 0,
+              stats.ageDistribution.Adults || 0,
+              stats.ageDistribution.Seniors || 0
+            ]
+          },
+          genderDistribution: {
+            labels: ['Male', 'Female', 'Other'],
+            values: [
+              stats.genderDistribution.Male || 0,
+              stats.genderDistribution.Female || 0,
+              stats.genderDistribution.Other || 0
+            ]
+          },
+          diseaseRisks: {
+            labels: ['Diabetes', 'Hypertension', 'Obesity', 'Malnutrition'],
+            values: [
+              stats.diseaseRisks.suspectedDiabetes || 0,
+              stats.diseaseRisks.suspectedHypertension || 0,
+              stats.diseaseRisks.suspectedObesity || 0,
+              stats.diseaseRisks.suspectedMalnutrition || 0
+            ]
           }
         }
       }
@@ -346,7 +375,7 @@ exports.getStats = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Server Error calculating stats'
+      message: error.message || 'Server Error calculating stats'
     });
   }
 };
@@ -356,27 +385,15 @@ exports.getStats = async (req, res) => {
 // @access  Public
 exports.getPublicStats = async (req, res) => {
   try {
-    const totalSurveys = await Survey.countDocuments();
-    const healthyCount = await Survey.countDocuments({ status: 'Healthy' });
-    const atRiskCount = await Survey.countDocuments({ status: 'At Risk' });
-    
-    const avgBmiResult = await Survey.aggregate([
-      {
-        $group: {
-          _id: null,
-          avgBmi: { $avg: '$bmi' }
-        }
-      }
-    ]);
-    const averageBmi = avgBmiResult.length > 0 ? parseFloat(avgBmiResult[0].avgBmi.toFixed(1)) : 0;
+    const stats = await dbManager.getStats();
 
     res.status(200).json({
       success: true,
       data: {
-        totalSurveys,
-        healthyCount,
-        atRiskCount,
-        averageBmi
+        totalSurveys: stats.totalSurveys,
+        healthyCount: stats.healthyCount,
+        atRiskCount: stats.atRiskCount,
+        averageBmi: stats.averageBmi
       }
     });
   } catch (error) {

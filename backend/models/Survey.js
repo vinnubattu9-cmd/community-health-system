@@ -1,6 +1,24 @@
 const mongoose = require('mongoose');
 
 const SurveySchema = new mongoose.Schema({
+  citizenId: {
+    type: String,
+    required: [true, 'Citizen ID is required']
+  },
+  familyId: {
+    type: String,
+    trim: true
+  },
+  address: {
+    type: String,
+    trim: true
+  },
+  village: {
+    type: String,
+    required: [true, 'Village is required'],
+    trim: true,
+    default: 'General'
+  },
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -87,6 +105,30 @@ const SurveySchema = new mongoose.Schema({
   recommendations: {
     type: [String],
     default: []
+  },
+  lifestyle: {
+    smoking: { type: String, enum: ['Never', 'Occasionally', 'Daily'], default: 'Never' },
+    alcohol: { type: String, enum: ['Never', 'Occasionally', 'Daily'], default: 'Never' },
+    exercise: { type: String, enum: ['None', 'Moderate', 'Regular'], default: 'None' },
+    diet: { type: String, enum: ['Veg', 'Non-Veg', 'Balanced'], default: 'Balanced' }
+  },
+  medicalHistory: {
+    diabetes: { type: Boolean, default: false },
+    hypertension: { type: Boolean, default: false },
+    heartDisease: { type: Boolean, default: false },
+    pregnancy: { type: Boolean, default: false },
+    medication: { type: String, default: 'None' }
+  },
+  healthScore: {
+    type: Number,
+    required: true,
+    default: 100
+  },
+  diseaseAnalysis: {
+    suspectedDiabetes: { type: Boolean, default: false },
+    suspectedHypertension: { type: Boolean, default: false },
+    suspectedObesity: { type: Boolean, default: false },
+    suspectedMalnutrition: { type: Boolean, default: false }
   },
   createdAt: {
     type: Date,

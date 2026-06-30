@@ -1,7 +1,18 @@
 const jwt = require('jsonwebtoken');
-const Admin = require('../models/Admin');
+const dbManager = require('../config/dbManager');
+const bcrypt = require('bcryptjs');
 
-// @desc    Admin login using MongoDB credentials
+// Helper to match password (supports both Mongo model methods and raw Firestore objects)
+const matchPassword = async (user, enteredPassword) => {
+  // If it's a Mongoose document, use the model method
+  if (typeof user.matchPassword === 'function') {
+    return await user.matchPassword(enteredPassword);
+  }
+  // Otherwise, do a direct bcrypt compare (Firestore)
+  return await bcrypt.compare(enteredPassword, user.password);
+};
+
+// @desc    User Login (supports roles: ASHA, ANM, PHC, NGO, SACHIVALAYAM)
 // @route   POST /api/auth/login
 // @access  Public
 exports.login = async (req, res) => {
@@ -15,10 +26,10 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Find admin in MongoDB
-    const admin = await Admin.findOne({ username: username.toLowerCase().trim() });
+    // Find user using dbManager
+    const user = await dbManager.findUser(username);
 
-    if (!admin) {
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: 'Invalid username or password'
@@ -26,7 +37,7 @@ exports.login = async (req, res) => {
     }
 
     // Compare password
-    const isMatch = await admin.matchPassword(password);
+    const isMatch = await matchPassword(user, password);
 
     if (!isMatch) {
       return res.status(401).json({
@@ -35,18 +46,24 @@ exports.login = async (req, res) => {
       });
     }
 
-    // Create JWT token
+    // Create JWT token including role
     const jwtSecret = process.env.JWT_SECRET || 'health_monitoring_system_secret_key_2026';
+    const userId = user._id || user.id;
     const token = jwt.sign(
-      { id: admin._id, role: 'admin', username: admin.username },
+      { id: userId, role: user.role, username: user.username },
       jwtSecret,
       { expiresIn: '24h' }
     );
 
     res.status(200).json({
       success: true,
-      message: 'Admin authenticated successfully',
-      token
+      message: 'Authenticated successfully',
+      token,
+      user: {
+        id: userId,
+        username: user.username,
+        role: user.role
+      }
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -57,7 +74,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// Middleware to protect admin routes
+// Middleware to protect routes (verifies JWT)
 exports.protect = async (req, res, next) => {
   let token;
 
@@ -71,7 +88,7 @@ exports.protect = async (req, res, next) => {
   if (!token) {
     return res.status(401).json({
       success: false,
-      message: 'Access denied. Admin authorization token required.'
+      message: 'Access denied. Authorization token required.'
     });
   }
 
@@ -86,4 +103,17 @@ exports.protect = async (req, res, next) => {
       message: 'Token is invalid or has expired. Please log in again.'
     });
   }
+};
+
+// Middleware to authorize specific roles
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `User role (${req.user.role || 'unknown'}) is not authorized to access this resource`
+      });
+    }
+    next();
+  };
 };

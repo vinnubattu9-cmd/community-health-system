@@ -22,6 +22,8 @@ app.use(express.json());
 // API Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/surveys', require('./routes/surveyRoutes'));
+app.use('/api/gemini', require('./routes/geminiRoutes'));
+app.use('/api/plans', require('./routes/planRoutes'));
 
 // Serve Frontend static assets
 app.use(express.static(path.join(__dirname, '../frontend')));

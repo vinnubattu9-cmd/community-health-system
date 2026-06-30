@@ -7,6 +7,9 @@
   <!-- Google Fonts & FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="css/styles.css">
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0ea5e9">
 </head>
 <body>
 
@@ -50,16 +53,65 @@
       <div class="survey-card">
         <form id="health-survey-form" class="survey-form" novalidate>
           
-          <!-- Section A: Personal Details -->
+                  <!-- Section A: Household & Personal Details -->
           <div class="form-section">
-            <h3 class="form-section-title">Personal Information</h3>
+            <h3 class="form-section-title">Household & Personal Information</h3>
             <div class="form-grid">
-              <!-- Name -->
+              
+              <!-- Checkup Type Selector -->
+              <div class="form-group">
+                <label for="checkupType">Checkup Type <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-stethoscope"></i>
+                  <select id="checkupType" class="form-control">
+                    <option value="new" selected>New Registration</option>
+                    <option value="followup">Follow-up / Re-check</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Citizen Health ID (shown conditionally) -->
+              <div class="form-group" id="group-citizen-id" style="display: none;">
+                <label for="citizenId">Citizen Health ID <span>*</span></label>
+                <div class="input-wrapper" style="display: flex; gap: 8px;">
+                  <i class="fa-solid fa-id-card" style="margin-top: 12px;"></i>
+                  <input type="text" id="citizenId" class="form-control" placeholder="e.g. CH-2026-1234">
+                  <button type="button" id="btn-load-citizen" class="btn btn-secondary" style="padding: 0 16px;"><i class="fa-solid fa-rotate"></i> Load</button>
+                </div>
+              </div>
+
+              <!-- Family ID -->
+              <div class="form-group">
+                <label for="familyId">Family / Household ID</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-house-chimney"></i>
+                  <input type="text" id="familyId" class="form-control" placeholder="e.g. HH-402">
+                </div>
+              </div>
+
+              <!-- Village -->
+              <div class="form-group">
+                <label for="village">Village / Ward <span>*</span></label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-map-location-dot"></i>
+                  <select id="village" class="form-control" required>
+                    <option value="" disabled selected>Select Village</option>
+                    <option value="Ramapuram">Ramapuram</option>
+                    <option value="Bhimavaram">Bhimavaram</option>
+                    <option value="Gollapudi">Gollapudi</option>
+                    <option value="Penamaluru">Penamaluru</option>
+                    <option value="Vuyyuru">Vuyyuru</option>
+                    <option value="General">General / Ward 1</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Full Name -->
               <div class="form-group form-group-full">
                 <label for="name">Full Name <span>*</span></label>
                 <div class="input-wrapper">
                   <i class="fa-solid fa-user"></i>
-                  <input type="text" id="name" name="name" class="form-control" placeholder="e.g. John Doe" required>
+                  <input type="text" id="name" class="form-control" placeholder="e.g. Lakshmi Devi" required>
                 </div>
               </div>
               
@@ -68,7 +120,7 @@
                 <label for="age">Age (Years) <span>*</span></label>
                 <div class="input-wrapper">
                   <i class="fa-solid fa-cake-candles"></i>
-                  <input type="number" id="age" name="age" class="form-control" placeholder="e.g. 35" min="1" max="120" required>
+                  <input type="number" id="age" class="form-control" placeholder="e.g. 35" min="1" max="120" required>
                 </div>
               </div>
               
@@ -77,7 +129,7 @@
                 <label for="gender">Gender <span>*</span></label>
                 <div class="input-wrapper">
                   <i class="fa-solid fa-venus-mars"></i>
-                  <select id="gender" name="gender" class="form-control" required>
+                  <select id="gender" class="form-control" required>
                     <option value="" disabled selected>Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
@@ -87,11 +139,20 @@
               </div>
               
               <!-- Occupation -->
-              <div class="form-group form-group-full">
+              <div class="form-group">
                 <label for="occupation">Occupation <span>*</span></label>
                 <div class="input-wrapper">
                   <i class="fa-solid fa-briefcase"></i>
-                  <input type="text" id="occupation" name="occupation" class="form-control" placeholder="e.g. Teacher, Engineer, Student" required>
+                  <input type="text" id="occupation" class="form-control" placeholder="e.g. Farmer, Housewife, Weaver" required>
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="form-group">
+                <label for="address">Residential Address</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-location-dot"></i>
+                  <input type="text" id="address" class="form-control" placeholder="e.g. Door No. 3-45, Main Road">
                 </div>
               </div>
             </div>
@@ -184,6 +245,88 @@
 
             </div>
           </div>
+
+          <!-- Section C: Lifestyle & Medical History -->
+          <div class="form-section">
+            <h3 class="form-section-title">Lifestyle & Chronic History</h3>
+            <div class="form-grid">
+              
+              <!-- Lifestyle Variables -->
+              <div class="form-group">
+                <label for="lifestyle-smoking">Smoking Habits</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-smoking"></i>
+                  <select id="lifestyle-smoking" class="form-control">
+                    <option value="Never" selected>Never</option>
+                    <option value="Occasionally">Occasionally</option>
+                    <option value="Daily">Daily / Regular</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="lifestyle-alcohol">Alcohol Consumption</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-wine-glass"></i>
+                  <select id="lifestyle-alcohol" class="form-control">
+                    <option value="Never" selected>Never</option>
+                    <option value="Occasionally">Occasionally</option>
+                    <option value="Daily">Daily / Regular</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="lifestyle-exercise">Exercise Level</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-person-running"></i>
+                  <select id="lifestyle-exercise" class="form-control">
+                    <option value="None">No Regular Exercise</option>
+                    <option value="Moderate" selected>Moderate (Walking/Yoga)</option>
+                    <option value="Regular">Regular / Heavy Work</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="lifestyle-diet">Dietary Habits</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-apple-whole"></i>
+                  <select id="lifestyle-diet" class="form-control">
+                    <option value="Veg">Vegetarian</option>
+                    <option value="Non-Veg">Non-Vegetarian</option>
+                    <option value="Balanced" selected>Balanced Diet</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Medical Conditions (Chronic Diseases) -->
+              <div class="form-group form-group-full">
+                <label>Existing Chronic Diseases</label>
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-top: 8px;">
+                  <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                    <input type="checkbox" id="history-diabetes" style="width: 18px; height: 18px;"> Diabetes
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                    <input type="checkbox" id="history-hypertension" style="width: 18px; height: 18px;"> Hypertension (High BP)
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                    <input type="checkbox" id="history-heart" style="width: 18px; height: 18px;"> Cardiovascular / Heart Disease
+                  </label>
+                  <label id="label-pregnancy" style="display: none; align-items: center; gap: 8px; font-weight: normal; cursor: pointer;">
+                    <input type="checkbox" id="history-pregnancy" style="width: 18px; height: 18px;"> Active Pregnancy
+                  </label>
+                </div>
+              </div>
+
+              <!-- Medications details -->
+              <div class="form-group form-group-full">
+                <label for="history-meds">Active Medications (Specify details if any)</label>
+                <div class="input-wrapper">
+                  <i class="fa-solid fa-pills"></i>
+                  <input type="text" id="history-meds" class="form-control" placeholder="e.g. Metformin 500mg daily, Amlodipine 5mg, or None">
+                </div>
+              </div>
 
           <!-- Section C: Live Health Feedback Panel -->
           <div class="live-feedback">
